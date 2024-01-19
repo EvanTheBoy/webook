@@ -16,7 +16,7 @@ func main() {
 		AllowHeaders:     []string{"Content-Type", "Authorization"},
 		AllowCredentials: true,
 		AllowOriginFunc: func(origin string) bool {
-			if strings.HasPrefix(origin, "http://localhost") {
+			if strings.HasPrefix(origin, "http://192.168.183.132") {
 				return true
 			}
 			return strings.Contains(origin, "company.com")
