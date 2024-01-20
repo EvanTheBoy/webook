@@ -26,7 +26,7 @@ func main() {
 
 	u := web.NewUserHandler()
 	u.RegisterUserRoutes(server)
-	if err := server.Run(":8080"); err != nil {
+	if err := server.Run(":8081"); err != nil {
 		return
 	}
 }
