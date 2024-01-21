@@ -5,14 +5,17 @@ import (
 	regexp "github.com/dlclark/regexp2"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"webook/internal/domain"
+	"webook/internal/service"
 )
 
 type UserHandler struct {
+	svc      *service.UserService
 	Email    *regexp.Regexp
 	Password *regexp.Regexp
 }
 
-func NewUserHandler() *UserHandler {
+func NewUserHandler(service *service.UserService) *UserHandler {
 	const (
 		emailRegexPattern    = "^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$"
 		passwordRegexPattern = `^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,}$`
@@ -21,6 +24,7 @@ func NewUserHandler() *UserHandler {
 	emailExp := regexp.MustCompile(emailRegexPattern, regexp.None)
 	passwordExp := regexp.MustCompile(passwordRegexPattern, regexp.None)
 	return &UserHandler{
+		svc:      service,
 		Email:    emailExp,
 		Password: passwordExp,
 	}
@@ -70,6 +74,12 @@ func (u *UserHandler) SignUp(ctx *gin.Context) {
 	if req.Password != req.ConfirmPassword {
 		ctx.String(http.StatusOK, "两次密码输入不一致")
 	}
+
+	// 数据库操作: handler调用下面的service
+	u.svc.SignUp(ctx, domain.User{
+		Email:    req.Email,
+		Password: req.Password,
+	})
 
 	// 注册成功
 	ctx.String(http.StatusOK, "注册成功")
