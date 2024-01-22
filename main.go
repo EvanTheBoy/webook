@@ -23,6 +23,12 @@ func main() {
 		// 一旦初始化过程中出错, 应用就不要启动
 		panic(err)
 	}
+	// 建表
+	err = dao.InitTable(db)
+	if err != nil {
+		panic(err)
+	}
+
 	userDao := dao.NewUserDao(db)
 	repo := repository.NewUserRepository(userDao)
 	svc := service.NewUserService(repo)
