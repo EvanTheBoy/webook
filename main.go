@@ -14,25 +14,17 @@ import (
 )
 
 func main() {
+	db := initDB()
+	user := initUser(db)
+	server := initWebServer()
+	user.RegisterUserRoutes(server)
+	if err := server.Run(":8081"); err != nil {
+		return
+	}
+}
+
+func initWebServer() *gin.Engine {
 	server := gin.Default()
-
-	// 初始化数据库操作需要的组件
-	db, err := gorm.Open(mysql.Open("root:root@tcp(192.168.183.132:13316)/webook"))
-	if err != nil {
-		// 结束goroutine
-		// 一旦初始化过程中出错, 应用就不要启动
-		panic(err)
-	}
-	// 建表
-	err = dao.InitTable(db)
-	if err != nil {
-		panic(err)
-	}
-
-	userDao := dao.NewUserDao(db)
-	repo := repository.NewUserRepository(userDao)
-	svc := service.NewUserService(repo)
-
 	// 引入CORS的相关中间件解决跨域问题
 	server.Use(cors.New(cors.Config{
 		AllowHeaders:     []string{"Content-Type", "Authorization"},
@@ -45,10 +37,29 @@ func main() {
 		},
 		MaxAge: 12 * time.Hour,
 	}))
+	return server
+}
 
-	u := web.NewUserHandler(svc)
-	u.RegisterUserRoutes(server)
-	if err := server.Run(":8081"); err != nil {
-		return
+func initDB() *gorm.DB {
+	// 初始化数据库操作需要的组件
+	db, err := gorm.Open(mysql.Open("root:root@tcp(192.168.183.132:13316)/webook"))
+	if err != nil {
+		// 结束goroutine
+		// 一旦初始化过程中出错, 应用就不要启动
+		panic(err)
 	}
+	// 建表
+	err = dao.InitTable(db)
+	if err != nil {
+		panic(err)
+	}
+	return db
+}
+
+func initUser(db *gorm.DB) *web.UserHandler {
+	userDao := dao.NewUserDao(db)
+	repo := repository.NewUserRepository(userDao)
+	svc := service.NewUserService(repo)
+	u := web.NewUserHandler(svc)
+	return u
 }
