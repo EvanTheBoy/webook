@@ -1,6 +1,7 @@
 package web
 
 import (
+	"errors"
 	"fmt"
 	regexp "github.com/dlclark/regexp2"
 	"github.com/gin-gonic/gin"
@@ -56,23 +57,28 @@ func (u *UserHandler) SignUp(ctx *gin.Context) {
 	emailMatch, err := u.Email.MatchString(req.Email)
 	if err != nil {
 		ctx.String(http.StatusOK, "系统错误")
+		return
 	}
 	if !emailMatch {
 		ctx.String(http.StatusOK, "邮箱格式错误")
+		return
 	}
 
 	// 校验密码格式
 	passwordMatch, err := u.Password.MatchString(req.Password)
 	if err != nil {
 		ctx.String(http.StatusOK, "系统错误")
+		return
 	}
 	if !passwordMatch {
 		ctx.String(http.StatusOK, "密码必须大于8位, 且包含数字、特殊字符")
+		return
 	}
 
 	// 校验两次密码是否一致
 	if req.Password != req.ConfirmPassword {
 		ctx.String(http.StatusOK, "两次密码输入不一致")
+		return
 	}
 
 	// 数据库操作: handler调用下面的service
@@ -80,8 +86,15 @@ func (u *UserHandler) SignUp(ctx *gin.Context) {
 		Email:    req.Email,
 		Password: req.Password,
 	})
-	if err != nil {
-		ctx.String(http.StatusOK, "系统错误")
+
+	// 如果error在层与层之间传递的时候用的是fmt.Errorf(), 这里的判断
+	// 要记得写成errors.Is(errors.Unwrap(err), 另一个参数)
+	if errors.Is(err, service.ErrUserDuplicateEmail) {
+		ctx.String(http.StatusOK, "邮箱重复, 请换一个邮箱")
+		return
+	} else if err != nil {
+		ctx.String(http.StatusOK, "服务器异常, 注册失败")
+		return
 	}
 
 	// 注册成功

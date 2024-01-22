@@ -2,9 +2,14 @@ package dao
 
 import (
 	"context"
+	"errors"
+	"github.com/go-sql-driver/mysql"
 	"gorm.io/gorm"
 	"time"
 )
+
+// ErrUserDuplicateEmail 每层都有自己的error, 一层只能调它下一层的error, 不能越级调
+var ErrUserDuplicateEmail = errors.New("邮箱冲突")
 
 // UserDAO 数据库, 存储意义上的用户
 type UserDAO struct {
@@ -25,7 +30,17 @@ func (dao *UserDAO) Insert(ctx context.Context, u User) error {
 	now := time.Now().UnixMilli()
 	u.CreatedTime = now
 	u.UpdatedTime = now
-	return dao.db.WithContext(ctx).Create(&u).Error
+
+	err := dao.db.WithContext(ctx).Create(&u).Error
+	// 邮箱冲突的错误具有唯一索引, 就是它的错误码是唯一的
+	var mysqlErr *mysql.MySQLError
+	if errors.As(err, &mysqlErr) {
+		const uniqueConflictsErrNo uint16 = 1062
+		if mysqlErr.Number == uniqueConflictsErrNo {
+			return ErrUserDuplicateEmail
+		}
+	}
+	return err
 }
 
 type User struct {
