@@ -7,7 +7,6 @@ import (
 	"webook/internal/repository"
 )
 
-// var ErrUserDuplicateEmail = fmt.Errorf("%w 邮箱冲突", repository.ErrUserDuplicateEmail)
 var ErrUserDuplicateEmail = repository.ErrUserDuplicateEmail
 
 type UserService struct {
