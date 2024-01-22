@@ -17,12 +17,8 @@ func NewUserRepository(dao *dao.UserDAO) *UserRepository {
 }
 
 func (repo *UserRepository) Create(ctx context.Context, u domain.User) error {
-	err := repo.dao.Insert(ctx, dao.User{
+	return repo.dao.Insert(ctx, dao.User{
 		Email:    u.Email,
 		Password: u.Password,
 	})
-	if err != nil {
-		return err
-	}
-	return nil
 }

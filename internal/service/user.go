@@ -18,9 +18,5 @@ func NewUserService(repo *repository.UserRepository) *UserService {
 
 func (svc *UserService) SignUp(ctx context.Context, u domain.User) error {
 	// 考虑数据库存储的操作
-	err := svc.repo.Create(ctx, u)
-	if err != nil {
-		return err
-	}
-	return nil
+	return svc.repo.Create(ctx, u)
 }
