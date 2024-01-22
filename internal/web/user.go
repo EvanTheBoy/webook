@@ -76,10 +76,13 @@ func (u *UserHandler) SignUp(ctx *gin.Context) {
 	}
 
 	// 数据库操作: handler调用下面的service
-	u.svc.SignUp(ctx, domain.User{
+	err = u.svc.SignUp(ctx, domain.User{
 		Email:    req.Email,
 		Password: req.Password,
 	})
+	if err != nil {
+		ctx.String(http.StatusOK, "系统错误")
+	}
 
 	// 注册成功
 	ctx.String(http.StatusOK, "注册成功")
