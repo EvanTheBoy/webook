@@ -2,6 +2,8 @@ package main
 
 import (
 	"github.com/gin-contrib/cors"
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -25,6 +27,10 @@ func main() {
 
 func initWebServer() *gin.Engine {
 	server := gin.Default()
+	// 设置session
+	store := cookie.NewStore([]byte("secret"))
+	server.Use(sessions.Sessions("mysession", store))
+
 	// 引入CORS的相关中间件解决跨域问题
 	server.Use(cors.New(cors.Config{
 		AllowHeaders:     []string{"Content-Type", "Authorization"},

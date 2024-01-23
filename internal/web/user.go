@@ -124,6 +124,8 @@ func (u *UserHandler) Login(ctx *gin.Context) {
 		return
 	}
 
+	// TODO 设置session_id的值
+
 	// 登录成功
 	ctx.String(http.StatusOK, "登录成功")
 	fmt.Printf("%v", req)
