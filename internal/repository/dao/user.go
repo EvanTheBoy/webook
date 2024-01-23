@@ -6,10 +6,14 @@ import (
 	"github.com/go-sql-driver/mysql"
 	"gorm.io/gorm"
 	"time"
+	"webook/internal/domain"
 )
 
-// ErrUserDuplicateEmail 每层都有自己的error, 一层只能调它下一层的error, 不能越级调
-var ErrUserDuplicateEmail = errors.New("邮箱冲突")
+// ErrUserDuplicateEmail 每层都有自己的error, 每一层只能调它下一层的error, 不能越级调
+var (
+	ErrUserDuplicateEmail = errors.New("邮箱冲突")
+	ErrUserNotFound       = gorm.ErrRecordNotFound
+)
 
 // UserDAO 数据库, 存储意义上的用户
 type UserDAO struct {
@@ -41,6 +45,12 @@ func (dao *UserDAO) Insert(ctx context.Context, u User) error {
 		}
 	}
 	return err
+}
+
+func (dao *UserDAO) SelectEmail(ctx context.Context, u domain.User) (User, error) {
+	var user User
+	err := dao.db.WithContext(ctx).Where("email = ?", u.Email).First(&user).Error
+	return user, err
 }
 
 type User struct {
