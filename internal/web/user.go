@@ -125,7 +125,7 @@ func (u *UserHandler) Login(ctx *gin.Context) {
 		return
 	}
 
-	// TODO 设置session_id的值
+	// 设置session_id的值
 	sess := sessions.Default(ctx)
 	sess.Set("userId", user.Id)
 	if err = sess.Save(); err != nil {
