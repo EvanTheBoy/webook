@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	regexp "github.com/dlclark/regexp2"
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"webook/internal/domain"
@@ -112,7 +113,7 @@ func (u *UserHandler) Login(ctx *gin.Context) {
 	if err := ctx.Bind(&req); err != nil {
 		return
 	}
-	err := u.svc.Login(ctx, domain.User{
+	user, err := u.svc.Login(ctx, domain.User{
 		Email:    req.Email,
 		Password: req.Password,
 	})
@@ -125,6 +126,12 @@ func (u *UserHandler) Login(ctx *gin.Context) {
 	}
 
 	// TODO 设置session_id的值
+	sess := sessions.Default(ctx)
+	sess.Set("userId", user.Id)
+	if err = sess.Save(); err != nil {
+		ctx.String(http.StatusOK, "cookie错误")
+		return
+	}
 
 	// 登录成功
 	ctx.String(http.StatusOK, "登录成功")

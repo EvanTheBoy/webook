@@ -13,6 +13,7 @@ import (
 	"webook/internal/repository/dao"
 	"webook/internal/service"
 	"webook/internal/web"
+	"webook/internal/web/middleware"
 )
 
 func main() {
@@ -27,9 +28,6 @@ func main() {
 
 func initWebServer() *gin.Engine {
 	server := gin.Default()
-	// 设置session
-	store := cookie.NewStore([]byte("secret"))
-	server.Use(sessions.Sessions("mysession", store))
 
 	// 引入CORS的相关中间件解决跨域问题
 	server.Use(cors.New(cors.Config{
@@ -43,6 +41,11 @@ func initWebServer() *gin.Engine {
 		},
 		MaxAge: 12 * time.Hour,
 	}))
+
+	// 设置session
+	store := cookie.NewStore([]byte("secret"))
+	server.Use(sessions.Sessions("mysession", store))
+	server.Use(middleware.NewLoginMiddleWareBuilder().Build())
 	return server
 }
 
