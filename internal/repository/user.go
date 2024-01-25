@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"github.com/gin-gonic/gin"
 	"webook/internal/domain"
 	"webook/internal/repository/dao"
 )
@@ -38,4 +39,14 @@ func (repo *UserRepository) FindByEmail(ctx context.Context, u domain.User) (dom
 		Email:    user.Email,
 		Password: user.Password,
 	}, nil
+}
+
+func (repo *UserRepository) UpdateUserInfo(ctx *gin.Context, u domain.User) error {
+	return repo.dao.UpdateById(ctx, dao.User{
+		Id:         u.Id,
+		Nickname:   u.Nickname,
+		Birthday:   u.Birthday,
+		Address:    u.Address,
+		BriefIntro: u.BriefIntro,
+	})
 }

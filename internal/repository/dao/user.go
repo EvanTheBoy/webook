@@ -3,6 +3,7 @@ package dao
 import (
 	"context"
 	"errors"
+	"github.com/gin-gonic/gin"
 	"github.com/go-sql-driver/mysql"
 	"gorm.io/gorm"
 	"time"
@@ -53,10 +54,29 @@ func (dao *UserDAO) SelectEmail(ctx context.Context, u domain.User) (User, error
 	return user, err
 }
 
+func (dao *UserDAO) UpdateById(ctx *gin.Context, u User) error {
+	now := time.Now().UnixMilli()
+	result := dao.db.WithContext(ctx).Model(&u).Where("id = ?", u.Id).Updates(map[string]interface{}{
+		"Nickname":    u.Nickname,
+		"Birthday":    u.Birthday,
+		"Address":     u.Address,
+		"BriefIntro":  u.BriefIntro,
+		"UpdatedTime": now,
+	})
+	if result.RowsAffected == 0 {
+		return ErrUserNotFound
+	}
+	return result.Error
+}
+
 type User struct {
-	Id       int64  `gorm:"primaryKey,autoIncrement"`
-	Email    string `gorm:"unique"`
-	Password string
+	Id         int64  `gorm:"primaryKey,autoIncrement"`
+	Email      string `gorm:"unique"`
+	Password   string
+	Nickname   string `gorm:"type=varchar(20)"`
+	Birthday   string
+	Address    string `gorm:"type=varchar(40)"`
+	BriefIntro string `gorm:"type=varchar(60)"`
 
 	CreatedTime int64
 	UpdatedTime int64

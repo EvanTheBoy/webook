@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 	"webook/internal/domain"
 	"webook/internal/repository"
@@ -10,6 +11,7 @@ import (
 
 var (
 	ErrUserDuplicateEmail    = repository.ErrUserDuplicateEmail
+	ErrUserNotFound          = repository.ErrUserNotFound
 	ErrInvalidUserOrPassword = errors.New("账号或密码错误")
 )
 
@@ -50,4 +52,8 @@ func (svc *UserService) Login(ctx context.Context, u domain.User) (domain.User, 
 		return domain.User{}, ErrInvalidUserOrPassword
 	}
 	return user, nil
+}
+
+func (svc *UserService) UpdateUserInfo(ctx *gin.Context, u domain.User) error {
+	return svc.repo.UpdateUserInfo(ctx, u)
 }

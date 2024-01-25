@@ -12,23 +12,39 @@ import (
 )
 
 type UserHandler struct {
-	svc      *service.UserService
-	Email    *regexp.Regexp
-	Password *regexp.Regexp
+	svc        *service.UserService
+	Email      *regexp.Regexp
+	Password   *regexp.Regexp
+	Birthday   *regexp.Regexp
+	Nickname   *regexp.Regexp
+	Address    *regexp.Regexp
+	BriefIntro *regexp.Regexp
 }
 
 func NewUserHandler(service *service.UserService) *UserHandler {
 	const (
-		emailRegexPattern    = "^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$"
-		passwordRegexPattern = `^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,}$`
+		emailRegexPattern      = "^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$"
+		passwordRegexPattern   = `^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,}$`
+		birthdayRegexPattern   = `^\d{4}-\d{2}-\d{2}$`
+		nicknameRegexPattern   = `^[\u4e00-\u9fa5a-zA-Z0-9]{4,20}$`
+		addressRegexPattern    = `^[\u4e00-\u9fa5a-zA-Z0-9]{0,40}$`
+		briefIntroRegexPattern = `^^.{0,60}$`
 	)
 
 	emailExp := regexp.MustCompile(emailRegexPattern, regexp.None)
 	passwordExp := regexp.MustCompile(passwordRegexPattern, regexp.None)
+	birthdayExp := regexp.MustCompile(birthdayRegexPattern, regexp.None)
+	nicknameExp := regexp.MustCompile(nicknameRegexPattern, regexp.None)
+	addressExp := regexp.MustCompile(addressRegexPattern, regexp.None)
+	briefIntroExp := regexp.MustCompile(briefIntroRegexPattern, regexp.None)
 	return &UserHandler{
-		svc:      service,
-		Email:    emailExp,
-		Password: passwordExp,
+		svc:        service,
+		Email:      emailExp,
+		Password:   passwordExp,
+		Birthday:   birthdayExp,
+		Nickname:   nicknameExp,
+		Address:    addressExp,
+		BriefIntro: briefIntroExp,
 	}
 }
 
@@ -139,7 +155,76 @@ func (u *UserHandler) Login(ctx *gin.Context) {
 }
 
 func (u *UserHandler) Edit(ctx *gin.Context) {
+	type UserInfo struct {
+		Id         int64
+		Nickname   string
+		Birthday   string
+		Address    string
+		BriefIntro string
+	}
 
+	var req UserInfo
+	if err := ctx.Bind(&req); err != nil {
+		return
+	}
+	// 校验昵称
+	nicknameMatch, err := u.Nickname.MatchString(req.Nickname)
+	if err != nil {
+		ctx.String(http.StatusOK, "系统错误")
+		return
+	}
+	if !nicknameMatch {
+		ctx.String(http.StatusOK, "昵称长度必须大于4位且小于20位")
+		return
+	}
+	// 校验生日
+	birthdayMatch, err := u.Birthday.MatchString(req.Birthday)
+	if err != nil {
+		ctx.String(http.StatusOK, "系统错误")
+		return
+	}
+	if !birthdayMatch {
+		ctx.String(http.StatusOK, "生日应符合格式: YYYY-MM-DD")
+		return
+	}
+	// 校验地区
+	matchAddress, err := u.Address.MatchString(req.Address)
+	if err != nil {
+		ctx.String(http.StatusOK, "系统错误")
+		return
+	}
+	if !matchAddress {
+		ctx.String(http.StatusOK, "地区文本过长, 应在40以内")
+		return
+	}
+	// 校验个人简介
+	matchBriefIntro, err := u.BriefIntro.MatchString(req.BriefIntro)
+	if err != nil {
+		ctx.String(http.StatusOK, "系统错误")
+		return
+	}
+	if !matchBriefIntro {
+		ctx.String(http.StatusOK, "简介文本过长, 应在60以内")
+		return
+	}
+	err = u.svc.UpdateUserInfo(ctx, domain.User{
+		Id:         req.Id,
+		Nickname:   req.Nickname,
+		Birthday:   req.Birthday,
+		Address:    req.Address,
+		BriefIntro: req.BriefIntro,
+	})
+	if errors.Is(err, service.ErrUserNotFound) {
+		ctx.String(http.StatusOK, "用户不存在")
+		return
+	}
+	if err != nil {
+		ctx.String(http.StatusOK, "系统错误")
+		return
+	}
+	// 更新成功
+	ctx.String(http.StatusOK, "更新成功")
+	fmt.Printf("%v", req)
 }
 
 func (u *UserHandler) Profile(ctx *gin.Context) {
