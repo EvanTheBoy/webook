@@ -244,7 +244,12 @@ func (u *UserHandler) Profile(ctx *gin.Context) {
 		ctx.String(http.StatusOK, "系统错误")
 		return
 	}
-
 	// 查询成功
-	ctx.JSON(http.StatusOK, gin.H{"user": user})
+	ctx.JSON(http.StatusOK, gin.H{
+		"Email":      user.Email,
+		"Nickname":   user.Nickname,
+		"Birthday":   user.Birthday,
+		"Address":    user.Address,
+		"BriefIntro": user.BriefIntro,
+	})
 }
