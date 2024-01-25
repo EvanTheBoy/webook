@@ -57,3 +57,13 @@ func (svc *UserService) Login(ctx context.Context, u domain.User) (domain.User, 
 func (svc *UserService) UpdateUserInfo(ctx *gin.Context, u domain.User) error {
 	return svc.repo.UpdateUserInfo(ctx, u)
 }
+
+func (svc *UserService) SearchById(ctx *gin.Context, u domain.User) (domain.User, error) {
+	user, err := svc.repo.FindById(ctx, u)
+	if errors.Is(err, ErrUserNotFound) {
+		return domain.User{}, ErrUserNotFound
+	} else if err != nil {
+		return domain.User{}, err
+	}
+	return user, nil
+}

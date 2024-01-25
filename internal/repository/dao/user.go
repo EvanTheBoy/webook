@@ -69,6 +69,12 @@ func (dao *UserDAO) UpdateById(ctx *gin.Context, u User) error {
 	return result.Error
 }
 
+func (dao *UserDAO) SelectUserById(ctx *gin.Context, u domain.User) (User, error) {
+	var user User
+	err := dao.db.WithContext(ctx).Where("id = ?", u.Id).First(&user).Error
+	return user, err
+}
+
 type User struct {
 	Id         int64  `gorm:"primaryKey,autoIncrement"`
 	Email      string `gorm:"unique"`

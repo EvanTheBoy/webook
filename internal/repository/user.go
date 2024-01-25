@@ -50,3 +50,19 @@ func (repo *UserRepository) UpdateUserInfo(ctx *gin.Context, u domain.User) erro
 		BriefIntro: u.BriefIntro,
 	})
 }
+
+func (repo *UserRepository) FindById(ctx *gin.Context, u domain.User) (domain.User, error) {
+	user, err := repo.dao.SelectUserById(ctx, domain.User{
+		Id: u.Id,
+	})
+	if err != nil {
+		return domain.User{}, err
+	}
+	return domain.User{
+		Email:      user.Email,
+		Nickname:   user.Nickname,
+		Birthday:   user.Birthday,
+		Address:    user.Address,
+		BriefIntro: user.BriefIntro,
+	}, nil
+}

@@ -7,6 +7,7 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 	"webook/internal/domain"
 	"webook/internal/service"
 )
@@ -53,7 +54,7 @@ func (u *UserHandler) RegisterUserRoutes(server *gin.Engine) {
 	group.POST("/signup", u.SignUp)
 	group.POST("/login", u.Login)
 	group.POST("/edit", u.Edit)
-	group.GET("/profile", u.Profile)
+	group.GET("/profile/:id", u.Profile)
 }
 
 func (u *UserHandler) SignUp(ctx *gin.Context) {
@@ -228,5 +229,22 @@ func (u *UserHandler) Edit(ctx *gin.Context) {
 }
 
 func (u *UserHandler) Profile(ctx *gin.Context) {
+	idStr := ctx.Param("id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		return
+	}
+	user, err := u.svc.SearchById(ctx, domain.User{
+		Id: id,
+	})
+	if errors.Is(err, service.ErrUserNotFound) {
+		ctx.String(http.StatusOK, "用户不存在")
+		return
+	} else if err != nil {
+		ctx.String(http.StatusOK, "系统错误")
+		return
+	}
 
+	// 查询成功
+	ctx.JSON(http.StatusOK, gin.H{"user": user})
 }
