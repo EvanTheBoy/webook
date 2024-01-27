@@ -27,5 +27,14 @@ func (l *LoginMiddleWareBuilder) Build() gin.HandlerFunc {
 			ctx.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
+
+		updatedTime := sess.Get("update_time")
+		if updatedTime == nil {
+			sess.Set("update_time", 60)
+			if err := sess.Save(); err != nil {
+				return
+			}
+		}
+
 	}
 }
