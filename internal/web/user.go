@@ -7,7 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"net/http"
-	"strconv"
 	"webook/internal/domain"
 	"webook/internal/service"
 )
@@ -20,6 +19,11 @@ type UserHandler struct {
 	Nickname   *regexp.Regexp
 	Address    *regexp.Regexp
 	BriefIntro *regexp.Regexp
+}
+
+type UserClaims struct {
+	jwt.RegisteredClaims
+	Uid int64
 }
 
 func NewUserHandler(service *service.UserService) *UserHandler {
@@ -54,7 +58,7 @@ func (u *UserHandler) RegisterUserRoutes(server *gin.Engine) {
 	group.POST("/signup", u.SignUp)
 	group.POST("/login", u.Login)
 	group.POST("/edit", u.Edit)
-	group.GET("/profile/:id", u.Profile)
+	group.GET("/profile", u.Profile)
 }
 
 func (u *UserHandler) SignUp(ctx *gin.Context) {
@@ -142,14 +146,16 @@ func (u *UserHandler) Login(ctx *gin.Context) {
 		return
 	}
 
-	token := jwt.New(jwt.SigningMethodHS512)
+	claims := UserClaims{
+		Uid: user.Id,
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS512, claims)
 	tokenStr, err := token.SignedString([]byte("MKdBdqsaVyzxj1WM3ZZsDeZrmv0zLDLG"))
 	if err != nil {
 		ctx.String(http.StatusInternalServerError, "系统错误")
 		return
 	}
 	ctx.Header("x-jwt-token", tokenStr)
-	fmt.Println(user)
 	// 登录成功
 	ctx.String(http.StatusOK, "登录成功")
 	fmt.Printf("%v", req)
@@ -229,13 +235,19 @@ func (u *UserHandler) Edit(ctx *gin.Context) {
 }
 
 func (u *UserHandler) Profile(ctx *gin.Context) {
-	idStr := ctx.Param("id")
-	id, err := strconv.ParseInt(idStr, 10, 64)
-	if err != nil {
+	//idStr := ctx.Param("id")
+	//id, err := strconv.ParseInt(idStr, 10, 64)
+	//if err != nil {
+	//	return
+	//}
+	c, _ := ctx.Get("claims")
+	claims, ok := c.(*UserClaims)
+	if !ok {
+		ctx.String(http.StatusOK, "系统错误")
 		return
 	}
 	user, err := u.svc.SearchById(ctx, domain.User{
-		Id: id,
+		Id: claims.Uid,
 	})
 	if errors.Is(err, service.ErrUserNotFound) {
 		ctx.String(http.StatusOK, "用户不存在")

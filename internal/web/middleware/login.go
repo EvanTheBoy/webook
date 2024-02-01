@@ -2,12 +2,12 @@ package middleware
 
 import (
 	"encoding/gob"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"net/http"
 	"strings"
 	"time"
+	"webook/internal/web"
 )
 
 type LoginMiddleWareBuilder struct {
@@ -36,14 +36,17 @@ func (l *LoginMiddleWareBuilder) Build() gin.HandlerFunc {
 			ctx.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
+		claims := &web.UserClaims{}
 		tokenStr := segments[1]
-		token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
+		token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
 			return []byte("MKdBdqsaVyzxj1WM3ZZsDeZrmv0zLDLG"), nil
 		})
-		fmt.Println("token=", token)
-		if err != nil || token == nil || !token.Valid {
+		if err != nil || token == nil ||
+			!token.Valid || claims.Uid == 0 {
 			ctx.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
+		// 往ctx中加入userId
+		ctx.Set("claims", claims)
 	}
 }
