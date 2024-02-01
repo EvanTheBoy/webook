@@ -1,9 +1,13 @@
 package middleware
 
 import (
-	"github.com/gin-contrib/sessions"
+	"encoding/gob"
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 	"net/http"
+	"strings"
+	"time"
 )
 
 type LoginMiddleWareBuilder struct {
@@ -14,27 +18,32 @@ func NewLoginMiddleWareBuilder() *LoginMiddleWareBuilder {
 }
 
 func (l *LoginMiddleWareBuilder) Build() gin.HandlerFunc {
+	gob.Register(time.Now())
 	return func(ctx *gin.Context) {
 		// 如果是登录注册就不需要校验
 		if ctx.Request.URL.Path == "/users/signup" ||
 			ctx.Request.URL.Path == "/users/login" {
 			return
 		}
-		sess := sessions.Default(ctx)
-		// 其他的页面都需要校验是否登录
-		if id := sess.Get("userId"); id == nil {
-			// 未登录
+		// 使用token进行校验
+		tokenHeader := ctx.GetHeader("Authorization")
+		if tokenHeader == "" {
 			ctx.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
-
-		updatedTime := sess.Get("update_time")
-		if updatedTime == nil {
-			sess.Set("update_time", 60)
-			if err := sess.Save(); err != nil {
-				return
-			}
+		segments := strings.Split(tokenHeader, " ")
+		if len(segments) != 2 {
+			ctx.AbortWithStatus(http.StatusUnauthorized)
+			return
 		}
-
+		tokenStr := segments[1]
+		token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
+			return []byte("MKdBdqsaVyzxj1WM3ZZsDeZrmv0zLDLG"), nil
+		})
+		fmt.Println("token=", token)
+		if err != nil || token == nil || !token.Valid {
+			ctx.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
 	}
 }

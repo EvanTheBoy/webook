@@ -32,6 +32,7 @@ func initWebServer() *gin.Engine {
 	// 引入CORS的相关中间件解决跨域问题
 	server.Use(cors.New(cors.Config{
 		AllowHeaders:     []string{"Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"x-jwt-token"},
 		AllowCredentials: true,
 		AllowOriginFunc: func(origin string) bool {
 			if strings.HasPrefix(origin, "http://192.168.183.132") {

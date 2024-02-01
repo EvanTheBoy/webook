@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 	regexp "github.com/dlclark/regexp2"
-	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 	"net/http"
 	"strconv"
 	"webook/internal/domain"
@@ -142,14 +142,14 @@ func (u *UserHandler) Login(ctx *gin.Context) {
 		return
 	}
 
-	// 设置session_id的值
-	sess := sessions.Default(ctx)
-	sess.Set("userId", user.Id)
-	if err = sess.Save(); err != nil {
-		ctx.String(http.StatusOK, "cookie错误")
+	token := jwt.New(jwt.SigningMethodHS512)
+	tokenStr, err := token.SignedString([]byte("MKdBdqsaVyzxj1WM3ZZsDeZrmv0zLDLG"))
+	if err != nil {
+		ctx.String(http.StatusInternalServerError, "系统错误")
 		return
 	}
-
+	ctx.Header("x-jwt-token", tokenStr)
+	fmt.Println(user)
 	// 登录成功
 	ctx.String(http.StatusOK, "登录成功")
 	fmt.Printf("%v", req)
