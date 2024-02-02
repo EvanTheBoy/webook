@@ -53,7 +53,7 @@ func (l *LoginMiddleWareBuilder) Build() gin.HandlerFunc {
 			claims.ExpiresAt = jwt.NewNumericDate(now.Add(time.Minute))
 			tokenStr, err = token.SignedString([]byte("MKdBdqsaVyzxj1WM3ZZsDeZrmv0zLDLG"))
 			if err != nil {
-				log.Panicln("jwt续约失败")
+				log.Panicln("jwt续约失败", err)
 			}
 			ctx.Header("x-jwt-token", tokenStr)
 		}
