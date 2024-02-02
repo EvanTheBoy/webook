@@ -44,6 +44,12 @@ func (l *LoginMiddleWareBuilder) Build() gin.HandlerFunc {
 		})
 		if err != nil || token == nil ||
 			!token.Valid || claims.Uid == 0 {
+			// 未登录
+			ctx.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+		if claims.UserAgent != ctx.Request.UserAgent() {
+			// 严重的安全问题
 			ctx.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
