@@ -2,8 +2,6 @@ package main
 
 import (
 	"github.com/gin-contrib/cors"
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -43,17 +41,6 @@ func initWebServer() *gin.Engine {
 		MaxAge: 12 * time.Hour,
 	}))
 
-	// 设置session
-	const (
-		authenticationKey = "UhY9zfeZa7ObnK1hqn9RYJM)VZxEA+bX"
-		encryptionKey     = "2sbC~0lO6sga%@&bfj&b65yMMf~OXomU"
-	)
-	store, err := redis.NewStore(16, "tcp", "192.168.183.132:6379", "",
-		[]byte(authenticationKey), []byte(encryptionKey))
-	if err != nil {
-		panic(err)
-	}
-	server.Use(sessions.Sessions("mysession", store))
 	server.Use(middleware.NewLoginMiddleWareBuilder().Build())
 	return server
 }
