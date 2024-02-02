@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"net/http"
+	"time"
 	"webook/internal/domain"
 	"webook/internal/service"
 )
@@ -147,6 +148,10 @@ func (u *UserHandler) Login(ctx *gin.Context) {
 	}
 
 	claims := UserClaims{
+		RegisteredClaims: jwt.RegisteredClaims{
+			// 设置过期时间
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Minute)),
+		},
 		Uid: user.Id,
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS512, claims)

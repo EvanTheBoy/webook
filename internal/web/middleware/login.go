@@ -4,6 +4,7 @@ import (
 	"encoding/gob"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -45,6 +46,16 @@ func (l *LoginMiddleWareBuilder) Build() gin.HandlerFunc {
 			!token.Valid || claims.Uid == 0 {
 			ctx.AbortWithStatus(http.StatusUnauthorized)
 			return
+		}
+		now := time.Now()
+		// 每十秒刷新一次, 这里生成一个新的token
+		if claims.ExpiresAt.Sub(now) < time.Second*50 {
+			claims.ExpiresAt = jwt.NewNumericDate(now.Add(time.Minute))
+			tokenStr, err = token.SignedString([]byte("MKdBdqsaVyzxj1WM3ZZsDeZrmv0zLDLG"))
+			if err != nil {
+				log.Panicln("jwt续约失败")
+			}
+			ctx.Header("x-jwt-token", tokenStr)
 		}
 		// 往ctx中加入userId
 		ctx.Set("claims", claims)
