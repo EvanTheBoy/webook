@@ -163,13 +163,11 @@ func (u *UserHandler) Login(ctx *gin.Context) {
 
 func (u *UserHandler) Edit(ctx *gin.Context) {
 	type UserInfo struct {
-		Id         int64
 		Nickname   string
 		Birthday   string
 		Address    string
 		BriefIntro string
 	}
-
 	var req UserInfo
 	if err := ctx.Bind(&req); err != nil {
 		return
@@ -214,8 +212,15 @@ func (u *UserHandler) Edit(ctx *gin.Context) {
 		ctx.String(http.StatusOK, "简介文本过长, 应在60以内")
 		return
 	}
+	// 从jwt中获取用户id
+	c, _ := ctx.Get("claims")
+	claims, ok := c.(*UserClaims)
+	if !ok {
+		ctx.String(http.StatusOK, "系统错误")
+		return
+	}
 	err = u.svc.UpdateUserInfo(ctx, domain.User{
-		Id:         req.Id,
+		Id:         claims.Uid,
 		Nickname:   req.Nickname,
 		Birthday:   req.Birthday,
 		Address:    req.Address,
@@ -235,11 +240,6 @@ func (u *UserHandler) Edit(ctx *gin.Context) {
 }
 
 func (u *UserHandler) Profile(ctx *gin.Context) {
-	//idStr := ctx.Param("id")
-	//id, err := strconv.ParseInt(idStr, 10, 64)
-	//if err != nil {
-	//	return
-	//}
 	c, _ := ctx.Get("claims")
 	claims, ok := c.(*UserClaims)
 	if !ok {
