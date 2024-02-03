@@ -31,7 +31,7 @@ func initWebServer() *gin.Engine {
 
 	// 引入redis, 基于IP地址进行限流
 	redisClient := redis.NewClient(&redis.Options{
-		Addr: "192.168.183.132:6379",
+		Addr: "192.168.183.133:6379",
 	})
 	server.Use(ratelimit.NewBuilder(redisClient, time.Second, 100).Build())
 
@@ -41,7 +41,7 @@ func initWebServer() *gin.Engine {
 		ExposeHeaders:    []string{"x-jwt-token"},
 		AllowCredentials: true,
 		AllowOriginFunc: func(origin string) bool {
-			if strings.HasPrefix(origin, "http://192.168.183.132") {
+			if strings.HasPrefix(origin, "http://192.168.183.133") {
 				return true
 			}
 			return strings.Contains(origin, "company.com")
@@ -55,7 +55,7 @@ func initWebServer() *gin.Engine {
 
 func initDB() *gorm.DB {
 	// 初始化数据库操作需要的组件
-	db, err := gorm.Open(mysql.Open("root:root@tcp(192.168.183.132:13316)/webook"))
+	db, err := gorm.Open(mysql.Open("root:root@tcp(192.168.183.133:13316)/webook"))
 	if err != nil {
 		// 结束goroutine
 		// 一旦初始化过程中出错, 应用就不要启动
