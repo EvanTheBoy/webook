@@ -1,0 +1,17 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webook
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: webook
+  template:
+    metadata:
+      labels:
+        app: webook
+    spec:
+      containers:
+        - name: webook
+          image: curry/webook:v0.0.1
