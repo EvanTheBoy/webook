@@ -26,6 +26,7 @@ func main() {
 	server.GET("/hello", func(ctx *gin.Context) {
 		ctx.String(http.StatusOK, "hello!")
 	})
+
 	if err := server.Run(":8081"); err != nil {
 		return
 	}
