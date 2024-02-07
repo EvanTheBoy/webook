@@ -14,7 +14,7 @@
 
 由于我的 Windows 电脑上安装的是 go1.20.5，因此在服务器上也安装这个版本：
 
-![image-20240207101224893](F:\webookImages\image-20240207101224893.png)
+![image-20240207101224893](https://github.com/EvanTheBoy/webook/assets/73733942/cd542eff-daf4-492d-947d-ef7b06a31f6f)
 
 直接点击下载即可。
 
@@ -68,23 +68,23 @@ ps -ef | grep sshd
 
 查看是否安装成功：
 
-![image.png](F:\webookImages\sshsupport.png)
+![sshsupport](https://github.com/EvanTheBoy/webook/assets/73733942/2c1580a5-4cab-4200-adc3-075ff38d3ae0)
 
 ### 部署
 
 打开 Goland，打开 Tools -> Deployment，点击左上角的 + 号，选择 SFTP 协议，给服务器命一个名，然后输入远程服务器的 IP 地址，最后保存：
 
-![image.png](F:\webookImages\deployment.png)
+![deployment](https://github.com/EvanTheBoy/webook/assets/73733942/133b4c16-48e8-4733-af39-bcfa2dbd7273)
 
 接着从 Connection 选择到 Mappings：
 
-![image.png](F:\webookImages\mappings.png)
+![mappings](https://github.com/EvanTheBoy/webook/assets/73733942/82b1311f-bbea-476b-8da4-9a766f89af87)
 
 选择 Deployment path，选择 Windows 和 Linux 上的文件对应。然后点击 OK。
 
 接下来右键根目录，然后 Deployment -> Sync with Deployed to ubuntu，把所有的文件全部传到 Linux 对应的目录中去：
 
-<img src="F:\webookImages\upload.png" alt="image-20240207104537181" style="zoom:90%;" />
+![upload](https://github.com/EvanTheBoy/webook/assets/73733942/1277fcab-bf22-4c58-b137-96a6c7264d8e)
 
 ## Linux 终端设置代理
 
