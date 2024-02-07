@@ -106,17 +106,17 @@ proxychains4 -help
 
 查看其配置文件的所在位置：
 
-![image.png](F:\GoWorkspace\src\webook\conf_location.png)
+![image.png](F:\webookImages\conf_location.png)
 
 这里可以下载 mousepad 编辑器，用 mousepad 打开，主要修改如下：
 
 1. dynamic_chain 取消注释
 
-![image.png](F:\GoWorkspace\src\webook\dynamic_chain.png)
+![image.png](F:\webookImages\dynamic_chain.png)
 
 2. 文件末尾修改
 
-![image.png](F:\GoWorkspace\src\webook\http_proxy.png)
+![image.png](F:\webookImages\http_proxy.png)
 
 就可以了，可以使用命令：
 
