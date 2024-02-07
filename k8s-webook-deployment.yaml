@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: webook-live
+  name: webook
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: webook-live
+      app: webook
   template:
     metadata:
       labels:
-        app: webook-live
+        app: webook
     spec:
       containers:
-        - name: webook-live
-          image: evantheboy/webook-live:v0.0.1
+        - name: webook
+          image: evantheboy/webook:v0.0.1
           ports:
             - containerPort: 8081
