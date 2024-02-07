@@ -14,7 +14,7 @@
 
 由于我的 Windows 电脑上安装的是 go1.20.5，因此在服务器上也安装这个版本：
 
-![image-20240207101224893](https://github.com/EvanTheBoy/webook/assets/73733942/e9f73232-a66f-43e4-be70-97604c434762)
+![image-20240207101224893](F:\webookImages\image-20240207101224893.png)
 
 直接点击下载即可。
 
@@ -68,7 +68,7 @@ ps -ef | grep sshd
 
 查看是否安装成功：
 
-![sshsupport](https://github.com/EvanTheBoy/webook/assets/73733942/e703a0ce-f555-4b42-a462-f2ca08763e47)
+![image.png](F:\webookImages\sshsupport.png)
 
 ### 部署
 
