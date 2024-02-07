@@ -60,11 +60,15 @@ sudo vim ~/.bashrc
 
 首先，在 linux 系统安装支持 ssh 相关的软件：
 
+```bash
 sudo apt-get install openssh-server
+```
 
 然后输入：
 
+```bash
 ps -ef | grep sshd
+```
 
 查看是否安装成功：
 
