@@ -104,11 +104,27 @@ sudo apt install proxychains4
 proxychains4 -help
 ```
 
-查看其配置文件的所在位置。
+查看其配置文件的所在位置：
 
-这里可以下载 mousepad 编辑器，用 mousepad 打开：
+![image.png](F:\GoWorkspace\src\webook\conf_location.png)
 
+这里可以下载 mousepad 编辑器，用 mousepad 打开，主要修改如下：
 
+1. dynamic_chain 取消注释
+
+![image.png](F:\GoWorkspace\src\webook\dynamic_chain.png)
+
+2. 文件末尾修改
+
+![image.png](F:\GoWorkspace\src\webook\http_proxy.png)
+
+就可以了，可以使用命令：
+
+```bash
+sudo proxychains4 curl -i icanhazip.com
+```
+
+查看 ip 地址，检验合理性。
 
 
 
