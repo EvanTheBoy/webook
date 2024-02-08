@@ -3,10 +3,8 @@ package main
 import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/redis/go-redis/v9"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"net/http"
 	"strings"
 	"time"
 	"webook/internal/repository"
@@ -14,19 +12,13 @@ import (
 	"webook/internal/service"
 	"webook/internal/web"
 	"webook/internal/web/middleware"
-	"webook/pkg/ginx/middleware/ratelimit"
 )
 
 func main() {
-	//db := initDB()
-	//user := initUser(db)
-	//server := initWebServer()
-	//user.RegisterUserRoutes(server)
-	server := gin.Default()
-	server.GET("/hello", func(ctx *gin.Context) {
-		ctx.String(http.StatusOK, "hello!")
-	})
-
+	db := initDB()
+	user := initUser(db)
+	server := initWebServer()
+	user.RegisterUserRoutes(server)
 	if err := server.Run(":8081"); err != nil {
 		return
 	}
@@ -35,11 +27,11 @@ func main() {
 func initWebServer() *gin.Engine {
 	server := gin.Default()
 
-	// 引入redis, 基于IP地址进行限流
-	redisClient := redis.NewClient(&redis.Options{
-		Addr: "192.168.183.134:6379",
-	})
-	server.Use(ratelimit.NewBuilder(redisClient, time.Second, 100).Build())
+	//// 引入redis, 基于IP地址进行限流
+	//redisClient := redis.NewClient(&redis.Options{
+	//	Addr: "192.168.183.134:6379",
+	//})
+	//server.Use(ratelimit.NewBuilder(redisClient, time.Second, 100).Build())
 
 	// 引入CORS的相关中间件解决跨域问题
 	server.Use(cors.New(cors.Config{

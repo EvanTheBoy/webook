@@ -9,6 +9,7 @@ spec:
     - protocol: TCP
       name: http
       port: 80
+      nodePort: 32080
       targetPort: 8081
-  type: LoadBalancer
+  type: NodePort
   
