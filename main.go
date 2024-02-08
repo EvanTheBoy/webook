@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/redis/go-redis/v9"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"strings"
@@ -12,6 +13,7 @@ import (
 	"webook/internal/service"
 	"webook/internal/web"
 	"webook/internal/web/middleware"
+	"webook/pkg/ginx/middleware/ratelimit"
 )
 
 func main() {
@@ -27,11 +29,11 @@ func main() {
 func initWebServer() *gin.Engine {
 	server := gin.Default()
 
-	//// 引入redis, 基于IP地址进行限流
-	//redisClient := redis.NewClient(&redis.Options{
-	//	Addr: "192.168.183.134:6379",
-	//})
-	//server.Use(ratelimit.NewBuilder(redisClient, time.Second, 100).Build())
+	// 引入redis, 基于IP地址进行限流
+	redisClient := redis.NewClient(&redis.Options{
+		Addr: "192.168.183.134:6379",
+	})
+	server.Use(ratelimit.NewBuilder(redisClient, time.Second, 100).Build())
 
 	// 引入CORS的相关中间件解决跨域问题
 	server.Use(cors.New(cors.Config{
