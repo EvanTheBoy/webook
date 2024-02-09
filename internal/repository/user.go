@@ -3,7 +3,9 @@ package repository
 import (
 	"context"
 	"github.com/gin-gonic/gin"
+	"log"
 	"webook/internal/domain"
+	"webook/internal/repository/cache"
 	"webook/internal/repository/dao"
 )
 
@@ -13,12 +15,14 @@ var (
 )
 
 type UserRepository struct {
-	dao *dao.UserDAO
+	dao   *dao.UserDAO
+	cache *cache.UserCache
 }
 
-func NewUserRepository(dao *dao.UserDAO) *UserRepository {
+func NewUserRepository(d *dao.UserDAO, c *cache.UserCache) *UserRepository {
 	return &UserRepository{
-		dao: dao,
+		dao:   d,
+		cache: c,
 	}
 }
 
@@ -52,17 +56,30 @@ func (repo *UserRepository) UpdateUserInfo(ctx *gin.Context, u domain.User) erro
 }
 
 func (repo *UserRepository) FindById(ctx *gin.Context, u domain.User) (domain.User, error) {
+	// 先从缓存中查找
+	uc, err := repo.cache.Get(ctx, u.Id)
+	if err == nil {
+		return uc, nil
+	}
+	// 缓存中没有就从数据库查
 	user, err := repo.dao.SelectUserById(ctx, domain.User{
 		Id: u.Id,
 	})
 	if err != nil {
 		return domain.User{}, err
 	}
-	return domain.User{
+	var ur = domain.User{
 		Email:      user.Email,
 		Nickname:   user.Nickname,
 		Birthday:   user.Birthday,
 		Address:    user.Address,
 		BriefIntro: user.BriefIntro,
-	}, nil
+	}
+	go func() {
+		err = repo.cache.Set(ctx, ur)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
+	return ur, err
 }

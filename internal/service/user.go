@@ -60,10 +60,5 @@ func (svc *UserService) UpdateUserInfo(ctx *gin.Context, u domain.User) error {
 
 func (svc *UserService) SearchById(ctx *gin.Context, u domain.User) (domain.User, error) {
 	user, err := svc.repo.FindById(ctx, u)
-	if errors.Is(err, ErrUserNotFound) {
-		return domain.User{}, ErrUserNotFound
-	} else if err != nil {
-		return domain.User{}, err
-	}
-	return user, nil
+	return user, err
 }

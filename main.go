@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 	"webook/internal/repository"
+	"webook/internal/repository/cache"
 	"webook/internal/repository/dao"
 	"webook/internal/service"
 	"webook/internal/web"
@@ -71,7 +72,9 @@ func initDB() *gorm.DB {
 
 func initUser(db *gorm.DB) *web.UserHandler {
 	userDao := dao.NewUserDao(db)
-	repo := repository.NewUserRepository(userDao)
+
+	userCache := cache.NewUserCache()
+	repo := repository.NewUserRepository(userDao, userCache)
 	svc := service.NewUserService(repo)
 	u := web.NewUserHandler(svc)
 	return u
