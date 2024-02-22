@@ -6,8 +6,6 @@ import (
 	"errors"
 	"fmt"
 	dysmsapi20170525 "github.com/alibabacloud-go/dysmsapi-20170525/v3/client"
-	util "github.com/alibabacloud-go/tea-utils/v2/service"
-	"github.com/alibabacloud-go/tea/tea"
 	"github.com/ecodeclub/ekit"
 	"math/rand"
 	"strings"
@@ -40,46 +38,11 @@ func (s *Service) Send(ctx context.Context, tplId, signName string, numbers []st
 			TemplateParam: ekit.ToPtr[string](string(bcode)),
 			SignName:      ekit.ToPtr[string](signName),
 		}
-		runtime := &util.RuntimeOptions{}
-		tryErr := func() (e error) {
-			defer func() {
-				if r := tea.Recover(recover()); r != nil {
-					e = r
-				}
-			}()
-			resp, err := s.client.SendSmsWithOptions(req, runtime)
-			if *resp.Body.Code == "OK" {
-				fmt.Println(phone, string(bcode))
-			}
-			if err != nil {
-				fmt.Println(errors.New(*resp.Body.Message))
-				return err
-			}
-			return nil
-		}()
-		if tryErr != nil {
-			var e = &tea.SDKError{}
-			var t *tea.SDKError
-			if errors.As(tryErr, &t) {
-				e = t
-			}
-			// 错误 message
-			fmt.Println(tea.StringValue(e.Message))
-			// 诊断地址
-			var data interface{}
-			d := json.NewDecoder(strings.NewReader(tea.StringValue(e.Data)))
-			err := d.Decode(&data)
-			if err != nil {
-				return err
-			}
-			if m, ok := data.(map[string]interface{}); ok {
-				recommend, _ := m["Recommend"]
-				fmt.Println(recommend)
-			}
-			_, err = util.AssertAsString(e.Message)
-			if err != nil {
-				return err
-			}
+		_, err := s.client.SendSms(req)
+		fmt.Println(phone, string(bcode))
+		if err != nil {
+			//fmt.Println(errors.New(*resp.Body.Message))
+			return err
 		}
 	}
 	return nil
