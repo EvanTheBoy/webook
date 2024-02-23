@@ -98,17 +98,17 @@ ps -ef | grep sshd
 sudo apt install proxychains4
 ```
 
-然后输入：
+然后输入下面的命令查看其配置文件的所在位置：
 
 ```bash
 proxychains4 -help
 ```
 
-查看其配置文件的所在位置：
+如下图所示：
 
 ![conf_location](https://github.com/EvanTheBoy/webook/assets/73733942/90906394-ecff-49e8-9434-a1ddcaa42235)
 
-这里可以下载 mousepad 编辑器，用 mousepad 打开，主要修改如下：
+这里可以下载 mousepad 编辑器，用 mousepad 打开上述配置文件。主要修改如下：
 
 1. dynamic_chain 取消注释
 
@@ -134,7 +134,7 @@ sudo proxychains4 curl -i icanhazip.com
 sudo apt install docker.io
 ```
 
-在 Linux 平台上，compose 并没有随同 docker 一起下载下来，因此这里还需要额外下载 compose，我选择的是 V2 版本的：
+在 Linux 平台上，compose 并没有随同 docker 一起下载下来，因此这里还需要额外下载 compose，我选择的是 V2 版本：
 
 ```bash
 mkdir -p ~/.docker/cli-plugins/
@@ -205,7 +205,6 @@ docker ps
 若看到了下面类似的输出就是成功了：
 
 ![docker_ps](https://github.com/EvanTheBoy/webook/assets/73733942/6fd38899-843b-4c15-8137-65dce3cddd1c)
-
 
 
 
