@@ -26,7 +26,7 @@ func NewCodeCache(client redis.Cmdable) *CodeCache {
 	}
 }
 
-func (c *CodeCache) Send(ctx context.Context, biz, code, phone string) error {
+func (c *CodeCache) Set(ctx context.Context, biz, code, phone string) error {
 	res, err := c.client.Eval(ctx, luaSetCode, []string{c.key(biz, phone)}, code).Int()
 	if err != nil {
 		return err
