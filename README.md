@@ -204,8 +204,7 @@ docker ps
 
 若看到了下面类似的输出就是成功了：
 
-![1708689826518_487D60E7-8E50-488f-A4A6-51879D3C4555](F:\webookImages\docker_ps.png)
-
+![docker_ps](https://github.com/EvanTheBoy/webook/assets/73733942/6fd38899-843b-4c15-8137-65dce3cddd1c)
 
 
 
