@@ -126,7 +126,85 @@ sudo proxychains4 curl -i icanhazip.com
 
 查看 ip 地址，检验合理性。
 
+## 配置以及使用 docker
 
+输入下面的命令安装 docker：
+
+```bash
+sudo apt install docker.io
+```
+
+在 Linux 平台上，compose 并没有随同 docker 一起下载下来，因此这里还需要额外下载 compose，我选择的是 V2 版本的：
+
+```bash
+mkdir -p ~/.docker/cli-plugins/
+sudo proxychains4 curl -SL https://github.com/docker/compose/releases/download/v2.24.0/docker-compose-linux-x86_64 -o ~/.docker/cli-plugins/docker-compose
+sudo chmod +x ~/.docker/cli-plugins/docker-compose
+```
+
+然后输入下面的命令查看是否安装成功：
+
+```bash
+docker compose version
+```
+
+能够正常输出 compose 的版本号，就说明安装成功了。
+
+接着将当前用户加入 docker 用户组：
+
+```bash
+sudo gpasswd -a evan docker
+newgrp docker
+```
+
+然后进入提前创建好的项目根目录 webook，拉取 mysql 和 redis 的镜像。然后在大陆地区，此过程可能会非常慢，即便是使用了 proxychains 可能也无济于事。因此先修改其配置文件：
+
+```bash
+sudo vim /etc/docker/daemon.json
+```
+
+将以下内容复制粘贴到这个 json 文件中：
+
+```
+{
+
+	"registry-mirrors":["https://pee6w651.mirror.aliyuncs.com"]
+
+}
+```
+
+保存并退出后，输入以下两条命令使其生效：
+
+```bash
+systemctl daemon-reload
+systemctl restart docker
+```
+
+然后就可以拉取镜像了。
+
+在 webook 目录下创建 docker-compose.yaml 文件，然后输入：
+
+```bash
+docker compose up
+```
+
+等待其完成即可。若想要其后台启动，在命令后面加一个 -d：
+
+```
+docker compose up -d
+```
+
+可以输入：
+
+```
+docker ps
+```
+
+查看当前运行的 docker 容器有哪些，以检验上一条命令是否成功拉取了需要的镜像。
+
+若看到了下面类似的输出就是成功了：
+
+![1708689826518_487D60E7-8E50-488f-A4A6-51879D3C4555](F:\webookImages\docker_ps.png)
 
 
 
