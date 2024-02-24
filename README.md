@@ -108,7 +108,7 @@ proxychains4 -help
 
 ![conf_location](https://github.com/EvanTheBoy/webook/assets/73733942/90906394-ecff-49e8-9434-a1ddcaa42235)
 
-这里可以下载 mousepad 编辑器，用 mousepad 打开上述配置文件。主要修改如下：
+这里可以下载 mousepad 编辑器，用 mousepad 打开上述配置文件，修改下面两个地方：
 
 1. dynamic_chain 取消注释
 
@@ -124,7 +124,7 @@ proxychains4 -help
 sudo proxychains4 curl -i icanhazip.com
 ```
 
-查看 ip 地址，检验合理性。
+查看 ip 地址，检验是否成功。
 
 ## 配置以及使用 docker
 
