@@ -92,10 +92,21 @@ func (u *UserHandler) VerifyLoginSmsCode(ctx *gin.Context) {
 	}
 	const biz = "login"
 	ok, err := u.codeSvc.Verify(ctx, biz, req.Code, req.Phone)
-	if !ok || err != nil {
-		ctx.String(http.StatusOK, "系统错误")
+	if !ok {
+		ctx.JSON(http.StatusOK, Result{
+			Code: 4,
+			Msg:  "验证码错误",
+		})
 	}
-	ctx.String(http.StatusOK, "验证成功")
+	if err != nil {
+		ctx.JSON(http.StatusOK, Result{
+			Code: 5,
+			Msg:  "系统错误",
+		})
+	}
+	ctx.JSON(http.StatusOK, Result{
+		Msg: "验证成功",
+	})
 }
 
 func (u *UserHandler) SignUp(ctx *gin.Context) {
