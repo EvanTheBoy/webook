@@ -9,8 +9,8 @@ import (
 )
 
 var (
-	ErrSendTooManyCode = errors.New("验证码发送太频繁")
-	ErrSystemAnomaly   = errors.New("系统错误")
+	ErrSendTooManyCodeTimes = errors.New("验证码发送太频繁")
+	ErrSystemAnomaly        = errors.New("系统错误")
 )
 
 //go:embed lua/set_code.lua
@@ -35,7 +35,7 @@ func (c *CodeCache) Set(ctx context.Context, biz, code, phone string) error {
 	case 0:
 		return nil
 	case -1:
-		return ErrSendTooManyCode
+		return ErrSendTooManyCodeTimes
 	default:
 		return ErrSystemAnomaly
 	}

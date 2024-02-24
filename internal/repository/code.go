@@ -5,16 +5,16 @@ import (
 	"webook/internal/repository/cache"
 )
 
-type CacheRepository struct {
+type CodeRepository struct {
 	cache *cache.CodeCache
 }
 
-func NewCacheRepository(c *cache.CodeCache) *CacheRepository {
-	return &CacheRepository{
+func NewCacheRepository(c *cache.CodeCache) *CodeRepository {
+	return &CodeRepository{
 		cache: c,
 	}
 }
 
-func (cr *CacheRepository) Store(ctx context.Context, biz, phone, code string) error {
+func (cr *CodeRepository) Store(ctx context.Context, biz, phone, code string) error {
 	return cr.cache.Set(ctx, biz, code, phone)
 }
