@@ -27,7 +27,7 @@ func NewCodeService(r *repository.CodeRepository) *CodeService {
 }
 
 func (svc *CodeService) Send(ctx context.Context, biz, phone string) error {
-	code := svc.GenValidateCode(6)
+	code := svc.genValidateCode(6)
 	// 先存入 redis
 	err := svc.repo.Store(ctx, biz, phone, code)
 	if err != nil {
@@ -41,7 +41,7 @@ func (svc *CodeService) Send(ctx context.Context, biz, phone string) error {
 	return nil
 }
 
-func (svc *CodeService) GenValidateCode(width int) string {
+func (svc *CodeService) genValidateCode(width int) string {
 	numeric := [10]byte{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
 	r := len(numeric)
 	rand.NewSource(time.Now().UnixNano())

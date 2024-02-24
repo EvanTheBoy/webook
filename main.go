@@ -8,6 +8,7 @@ import (
 	"gorm.io/gorm"
 	"strings"
 	"time"
+	"webook/config"
 	"webook/internal/repository"
 	"webook/internal/repository/cache"
 	"webook/internal/repository/dao"
@@ -19,21 +20,19 @@ import (
 
 func main() {
 	db := initDB()
-	user := initUser(db)
-	server := initWebServer()
+	rdb := initRedis()
+	user := initUser(db, rdb)
+	server := initWebServer(rdb)
 	user.RegisterUserRoutes(server)
 	if err := server.Run(":8081"); err != nil {
 		return
 	}
 }
 
-func initWebServer() *gin.Engine {
+func initWebServer(redisClient redis.Cmdable) *gin.Engine {
 	server := gin.Default()
 
 	// 引入redis, 基于IP地址进行限流
-	redisClient := redis.NewClient(&redis.Options{
-		Addr: "192.168.183.134:6379",
-	})
 	server.Use(ratelimit.NewBuilder(redisClient, time.Second, 100).Build())
 
 	// 引入CORS的相关中间件解决跨域问题
@@ -56,7 +55,8 @@ func initWebServer() *gin.Engine {
 
 func initDB() *gorm.DB {
 	// 初始化数据库操作需要的组件
-	db, err := gorm.Open(mysql.Open("root:root@tcp(192.168.183.134:13316)/webook"))
+	//db, err := gorm.Open(mysql.Open("root:root@tcp(192.168.183.134:13316)/webook"))
+	db, err := gorm.Open(mysql.Open(config.Config.DB.DSN))
 	if err != nil {
 		// 结束goroutine
 		// 一旦初始化过程中出错, 应用就不要启动
@@ -70,10 +70,16 @@ func initDB() *gorm.DB {
 	return db
 }
 
-func initUser(db *gorm.DB) *web.UserHandler {
-	userDao := dao.NewUserDao(db)
+func initRedis() redis.Cmdable {
+	redisClient := redis.NewClient(&redis.Options{
+		Addr: config.Config.Redis.Addr,
+	})
+	return redisClient
+}
 
-	userCache := cache.NewUserCache()
+func initUser(db *gorm.DB, rdb redis.Cmdable) *web.UserHandler {
+	userDao := dao.NewUserDao(db)
+	userCache := cache.NewUserCache(rdb)
 	repo := repository.NewUserRepository(userDao, userCache)
 	svc := service.NewUserService(repo)
 	u := web.NewUserHandler(svc)
