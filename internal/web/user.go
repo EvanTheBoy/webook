@@ -62,7 +62,8 @@ func (u *UserHandler) RegisterUserRoutes(server *gin.Engine) {
 	group.POST("/login", u.Login)
 	group.POST("/edit", u.Edit)
 	group.GET("/profile", u.Profile)
-	group.POST("/sms/send_code", u.SendLoginSmsCode)
+	group.POST("/login_sms/code/send", u.SendLoginSmsCode)
+	group.POST("/login_sms/code/verify", u.VerifyLoginSmsCode)
 }
 
 func (u *UserHandler) SendLoginSmsCode(ctx *gin.Context) {
@@ -78,6 +79,23 @@ func (u *UserHandler) SendLoginSmsCode(ctx *gin.Context) {
 		ctx.String(http.StatusOK, "系统错误")
 	}
 	ctx.String(http.StatusOK, "发送成功")
+}
+
+func (u *UserHandler) VerifyLoginSmsCode(ctx *gin.Context) {
+	type VerifyCodeReq struct {
+		Code  string `json:"code"`
+		Phone string `json:"phone"`
+	}
+	var req VerifyCodeReq
+	if err := ctx.Bind(&req); err != nil {
+		return
+	}
+	const biz = "login"
+	ok, err := u.codeSvc.Verify(ctx, biz, req.Code, req.Phone)
+	if !ok || err != nil {
+		ctx.String(http.StatusOK, "系统错误")
+	}
+	ctx.String(http.StatusOK, "验证成功")
 }
 
 func (u *UserHandler) SignUp(ctx *gin.Context) {

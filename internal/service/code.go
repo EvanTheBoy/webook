@@ -41,6 +41,10 @@ func (svc *CodeService) Send(ctx context.Context, biz, phone string) error {
 	return nil
 }
 
+func (svc *CodeService) Verify(ctx context.Context, biz, code, phone string) (bool, error) {
+	return svc.repo.Verify(ctx, biz, code, phone)
+}
+
 func (svc *CodeService) genValidateCode(width int) string {
 	numeric := [10]byte{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
 	r := len(numeric)
