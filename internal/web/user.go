@@ -107,11 +107,17 @@ func (u *UserHandler) VerifyLoginSmsCode(ctx *gin.Context) {
 	}
 
 	user, err := u.svc.FindOrCreate(ctx, req.Phone)
+	if err != nil {
+		ctx.JSON(http.StatusOK, Result{
+			Code: 5,
+			Msg:  "系统错误",
+		})
+	}
 
 	if err = u.setJWTToken(ctx, user.Id); err != nil {
 		ctx.JSON(http.StatusOK, Result{
-			Code: 3,
-			Msg:  "未知错误",
+			Code: 5,
+			Msg:  "系统错误",
 		})
 	}
 
@@ -206,7 +212,10 @@ func (u *UserHandler) Login(ctx *gin.Context) {
 	}
 
 	if err = u.setJWTToken(ctx, user.Id); err != nil {
-
+		ctx.JSON(http.StatusOK, Result{
+			Code: 5,
+			Msg:  "系统错误",
+		})
 	}
 	// 登录成功
 	ctx.String(http.StatusOK, "登录成功")
