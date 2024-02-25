@@ -194,6 +194,15 @@ func (u *UserHandler) Login(ctx *gin.Context) {
 		return
 	}
 
+	if err = u.setJWTToken(ctx, user); err != nil {
+
+	}
+	// 登录成功
+	ctx.String(http.StatusOK, "登录成功")
+	fmt.Printf("%v", req)
+}
+
+func (u *UserHandler) setJWTToken(ctx *gin.Context, user domain.User) error {
 	claims := UserClaims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			// 设置过期时间
@@ -206,12 +215,10 @@ func (u *UserHandler) Login(ctx *gin.Context) {
 	tokenStr, err := token.SignedString([]byte("MKdBdqsaVyzxj1WM3ZZsDeZrmv0zLDLG"))
 	if err != nil {
 		ctx.String(http.StatusInternalServerError, "系统错误")
-		return
+		return err
 	}
 	ctx.Header("x-jwt-token", tokenStr)
-	// 登录成功
-	ctx.String(http.StatusOK, "登录成功")
-	fmt.Printf("%v", req)
+	return nil
 }
 
 func (u *UserHandler) Edit(ctx *gin.Context) {
