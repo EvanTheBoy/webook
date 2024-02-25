@@ -2,6 +2,7 @@ package dao
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/go-sql-driver/mysql"
@@ -48,9 +49,9 @@ func (dao *UserDAO) Insert(ctx context.Context, u User) error {
 	return err
 }
 
-func (dao *UserDAO) SelectEmail(ctx context.Context, u domain.User) (User, error) {
+func (dao *UserDAO) SelectEmail(ctx context.Context, email string) (User, error) {
 	var user User
-	err := dao.db.WithContext(ctx).Where("email = ?", u.Email).First(&user).Error
+	err := dao.db.WithContext(ctx).Where("email = ?", email).First(&user).Error
 	return user, err
 }
 
@@ -75,9 +76,16 @@ func (dao *UserDAO) SelectUserById(ctx *gin.Context, u domain.User) (User, error
 	return user, err
 }
 
+func (dao *UserDAO) SelectPhone(ctx *gin.Context, phone string) (User, error) {
+	var user User
+	err := dao.db.WithContext(ctx).Where("phone = ?", phone).First(&user).Error
+	return user, err
+}
+
 type User struct {
-	Id         int64  `gorm:"primaryKey,autoIncrement"`
-	Email      string `gorm:"unique"`
+	Id         int64          `gorm:"primaryKey,autoIncrement"`
+	Email      sql.NullString `gorm:"unique"`
+	Phone      sql.NullString `gorm:"unique"`
 	Password   string
 	Nickname   string `gorm:"type=varchar(20)"`
 	Birthday   string

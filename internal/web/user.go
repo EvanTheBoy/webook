@@ -12,6 +12,8 @@ import (
 	"webook/internal/service"
 )
 
+const biz = "login"
+
 type UserHandler struct {
 	svc        *service.UserService
 	codeSvc    *service.CodeService
@@ -74,7 +76,6 @@ func (u *UserHandler) SendLoginSmsCode(ctx *gin.Context) {
 	if err := ctx.Bind(&req); err != nil {
 		return
 	}
-	const biz = "login"
 	if err := u.codeSvc.Send(ctx, biz, req.Phone); err != nil {
 		ctx.String(http.StatusOK, "系统错误")
 	}
@@ -90,7 +91,7 @@ func (u *UserHandler) VerifyLoginSmsCode(ctx *gin.Context) {
 	if err := ctx.Bind(&req); err != nil {
 		return
 	}
-	const biz = "login"
+
 	ok, err := u.codeSvc.Verify(ctx, biz, req.Code, req.Phone)
 	if !ok {
 		ctx.JSON(http.StatusOK, Result{
@@ -104,6 +105,16 @@ func (u *UserHandler) VerifyLoginSmsCode(ctx *gin.Context) {
 			Msg:  "系统错误",
 		})
 	}
+
+	user, err := u.svc.FindOrCreate(ctx, req.Phone)
+
+	if err = u.setJWTToken(ctx, user.Id); err != nil {
+		ctx.JSON(http.StatusOK, Result{
+			Code: 3,
+			Msg:  "未知错误",
+		})
+	}
+
 	ctx.JSON(http.StatusOK, Result{
 		Msg: "验证成功",
 	})
@@ -194,7 +205,7 @@ func (u *UserHandler) Login(ctx *gin.Context) {
 		return
 	}
 
-	if err = u.setJWTToken(ctx, user); err != nil {
+	if err = u.setJWTToken(ctx, user.Id); err != nil {
 
 	}
 	// 登录成功
@@ -202,14 +213,14 @@ func (u *UserHandler) Login(ctx *gin.Context) {
 	fmt.Printf("%v", req)
 }
 
-func (u *UserHandler) setJWTToken(ctx *gin.Context, user domain.User) error {
+func (u *UserHandler) setJWTToken(ctx *gin.Context, uid int64) error {
 	claims := UserClaims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			// 设置过期时间
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Minute)),
 		},
 		UserAgent: ctx.Request.UserAgent(),
-		Uid:       user.Id,
+		Uid:       uid,
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS512, claims)
 	tokenStr, err := token.SignedString([]byte("MKdBdqsaVyzxj1WM3ZZsDeZrmv0zLDLG"))
