@@ -12,19 +12,26 @@ import (
 )
 
 type LoginMiddleWareBuilder struct {
+	paths []string
 }
 
 func NewLoginMiddleWareBuilder() *LoginMiddleWareBuilder {
 	return &LoginMiddleWareBuilder{}
 }
 
+func (l *LoginMiddleWareBuilder) IgnorePaths(path string) *LoginMiddleWareBuilder {
+	l.paths = append(l.paths, path)
+	return l
+}
+
 func (l *LoginMiddleWareBuilder) Build() gin.HandlerFunc {
 	gob.Register(time.Now())
 	return func(ctx *gin.Context) {
 		// 如果是登录注册就不需要校验
-		if ctx.Request.URL.Path == "/users/signup" ||
-			ctx.Request.URL.Path == "/users/login" {
-			return
+		for _, path := range l.paths {
+			if ctx.Request.URL.Path == path {
+				return
+			}
 		}
 		// 使用token进行校验
 		tokenHeader := ctx.GetHeader("Authorization")
