@@ -14,4 +14,5 @@ type User struct {
 	BriefIntro string
 
 	CreatedTime time.Time
+	UpdatedTime time.Time
 }

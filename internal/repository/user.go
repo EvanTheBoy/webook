@@ -49,13 +49,15 @@ func (repo *UserRepository) FindByPhone(ctx *gin.Context, phone string) (domain.
 }
 
 func (repo *UserRepository) UpdateUserInfo(ctx *gin.Context, u domain.User) error {
-	return repo.dao.UpdateById(ctx, dao.User{
-		Id:         u.Id,
-		Nickname:   u.Nickname,
-		Birthday:   u.Birthday,
-		Address:    u.Address,
-		BriefIntro: u.BriefIntro,
-	})
+	err := repo.dao.UpdateById(ctx, repo.domainToEntity(u))
+	if err != nil {
+		return err
+	}
+	err = repo.cache.Set(ctx, u)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (repo *UserRepository) FindById(ctx *gin.Context, u domain.User) (domain.User, error) {
@@ -87,7 +89,12 @@ func (repo *UserRepository) entityToDomain(u dao.User) domain.User {
 		Email:       u.Email.String,
 		Phone:       u.Phone.String,
 		Password:    u.Password,
+		Address:     u.Address,
+		BriefIntro:  u.BriefIntro,
+		Birthday:    u.Birthday,
+		Nickname:    u.Nickname,
 		CreatedTime: time.UnixMilli(u.CreatedTime),
+		UpdatedTime: time.UnixMilli(u.UpdatedTime),
 	}
 }
 
@@ -103,6 +110,11 @@ func (repo *UserRepository) domainToEntity(u domain.User) dao.User {
 			Valid:  u.Phone != "",
 		},
 		Password:    u.Password,
+		Address:     u.Address,
+		BriefIntro:  u.BriefIntro,
+		Birthday:    u.Birthday,
+		Nickname:    u.Nickname,
 		CreatedTime: u.CreatedTime.UnixMilli(),
+		UpdatedTime: u.UpdatedTime.UnixMilli(),
 	}
 }
