@@ -79,6 +79,7 @@ func (u *UserHandler) SendLoginSmsCode(ctx *gin.Context) {
 	}
 	if err := u.codeSvc.Send(ctx, biz, req.Phone); err != nil {
 		ctx.String(http.StatusOK, "系统错误")
+		return
 	}
 	ctx.String(http.StatusOK, "发送成功")
 }
@@ -99,12 +100,14 @@ func (u *UserHandler) VerifyLoginSmsCode(ctx *gin.Context) {
 			Code: 4,
 			Msg:  "验证码错误",
 		})
+		return
 	}
 	if err != nil {
 		ctx.JSON(http.StatusOK, Result{
 			Code: 5,
 			Msg:  "系统错误",
 		})
+		return
 	}
 
 	user, err := u.svc.FindOrCreate(ctx, req.Phone)
@@ -113,6 +116,7 @@ func (u *UserHandler) VerifyLoginSmsCode(ctx *gin.Context) {
 			Code: 5,
 			Msg:  "系统错误",
 		})
+		return
 	}
 
 	if err = u.setJWTToken(ctx, user.Id); err != nil {
@@ -120,6 +124,7 @@ func (u *UserHandler) VerifyLoginSmsCode(ctx *gin.Context) {
 			Code: 5,
 			Msg:  "系统错误",
 		})
+		return
 	}
 
 	ctx.JSON(http.StatusOK, Result{
