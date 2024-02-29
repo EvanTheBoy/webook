@@ -16,7 +16,7 @@ const biz = "login"
 
 type UserHandler struct {
 	svc        service.UserService
-	codeSvc    *service.CodeService
+	codeSvc    service.CodeService
 	Email      *regexp.Regexp
 	Password   *regexp.Regexp
 	Birthday   *regexp.Regexp
@@ -31,7 +31,7 @@ type UserClaims struct {
 	UserAgent string
 }
 
-func NewUserHandler(service service.UserService, codeSvc *service.CodeService) *UserHandler {
+func NewUserHandler(service service.UserService, codeSvc service.CodeService) *UserHandler {
 	const (
 		emailRegexPattern      = "^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$"
 		passwordRegexPattern   = `^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,}$`

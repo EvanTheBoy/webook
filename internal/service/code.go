@@ -15,19 +15,24 @@ var (
 	signName = "hmdpLogin"
 )
 
-type CodeService struct {
-	repo   *repository.CodeRepository
+type CodeService interface {
+	Send(ctx context.Context, biz, phone string) error
+	Verify(ctx context.Context, biz, code, phone string) (bool, error)
+}
+
+type CodeServiceImpl struct {
+	repo   repository.CodeRepository
 	smsSvc sms.Service
 }
 
-func NewCodeService(r *repository.CodeRepository, svc sms.Service) *CodeService {
-	return &CodeService{
+func NewCodeService(r repository.CodeRepository, svc sms.Service) CodeService {
+	return &CodeServiceImpl{
 		repo:   r,
 		smsSvc: svc,
 	}
 }
 
-func (svc *CodeService) Send(ctx context.Context, biz, phone string) error {
+func (svc *CodeServiceImpl) Send(ctx context.Context, biz, phone string) error {
 	code := svc.genValidateCode(6)
 	// 先存入 redis
 	err := svc.repo.Store(ctx, biz, phone, code)
@@ -42,11 +47,11 @@ func (svc *CodeService) Send(ctx context.Context, biz, phone string) error {
 	return nil
 }
 
-func (svc *CodeService) Verify(ctx context.Context, biz, code, phone string) (bool, error) {
+func (svc *CodeServiceImpl) Verify(ctx context.Context, biz, code, phone string) (bool, error) {
 	return svc.repo.Verify(ctx, biz, code, phone)
 }
 
-func (svc *CodeService) genValidateCode(width int) string {
+func (svc *CodeServiceImpl) genValidateCode(width int) string {
 	numeric := [10]byte{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
 	r := len(numeric)
 	rand.NewSource(time.Now().UnixNano())
