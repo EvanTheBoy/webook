@@ -36,6 +36,8 @@ func InitMiddlewares(redisClient redis.Cmdable) []gin.HandlerFunc {
 		// 设置白名单
 		middleware.NewLoginMiddleWareBuilder().
 			IgnorePaths("/users/signup").
+			IgnorePaths("/login_sms/code/send").
+			IgnorePaths("/login_sms/code/verify").
 			IgnorePaths("/users/login").Build(),
 		// 引入redis, 基于IP地址进行限流
 		ratelimit.NewBuilder(redisClient, time.Second, 100).Build(),

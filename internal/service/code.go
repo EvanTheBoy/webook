@@ -20,9 +20,10 @@ type CodeService struct {
 	smsSvc sms.Service
 }
 
-func NewCodeService(r *repository.CodeRepository) *CodeService {
+func NewCodeService(r *repository.CodeRepository, svc sms.Service) *CodeService {
 	return &CodeService{
-		repo: r,
+		repo:   r,
+		smsSvc: svc,
 	}
 }
 

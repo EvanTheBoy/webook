@@ -31,7 +31,7 @@ type UserClaims struct {
 	UserAgent string
 }
 
-func NewUserHandler(service service.UserService) *UserHandler {
+func NewUserHandler(service service.UserService, codeSvc *service.CodeService) *UserHandler {
 	const (
 		emailRegexPattern      = "^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$"
 		passwordRegexPattern   = `^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,}$`
@@ -49,6 +49,7 @@ func NewUserHandler(service service.UserService) *UserHandler {
 	briefIntroExp := regexp.MustCompile(briefIntroRegexPattern, regexp.None)
 	return &UserHandler{
 		svc:        service,
+		codeSvc:    codeSvc,
 		Email:      emailExp,
 		Password:   passwordExp,
 		Birthday:   birthdayExp,
