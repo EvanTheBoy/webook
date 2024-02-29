@@ -17,18 +17,26 @@ var (
 	ErrUserNotFound       = gorm.ErrRecordNotFound
 )
 
-// UserDAO 数据库, 存储意义上的用户
-type UserDAO struct {
+type UserDao interface {
+	Insert(ctx context.Context, u User) error
+	SelectEmail(ctx context.Context, email string) (User, error)
+	UpdateById(ctx *gin.Context, u User) error
+	SelectUserById(ctx *gin.Context, u domain.User) (User, error)
+	SelectPhone(ctx *gin.Context, phone string) (User, error)
+}
+
+// GORMUserDao 数据库, 存储意义上的用户
+type GORMUserDao struct {
 	db *gorm.DB
 }
 
-func NewUserDao(db *gorm.DB) *UserDAO {
-	return &UserDAO{
+func NewUserDao(db *gorm.DB) UserDao {
+	return &GORMUserDao{
 		db: db,
 	}
 }
 
-func (dao *UserDAO) Insert(ctx context.Context, u User) error {
+func (dao *GORMUserDao) Insert(ctx context.Context, u User) error {
 	// 针对存储意义上的User进行存储, 在这里主要存创建时间
 	// 与更新时间, 然后调用context让它能一直在链路上传递下去
 	// 这里我们只需要存时间的毫秒数, 用来抵消时区的影响, 只用
@@ -49,13 +57,13 @@ func (dao *UserDAO) Insert(ctx context.Context, u User) error {
 	return err
 }
 
-func (dao *UserDAO) SelectEmail(ctx context.Context, email string) (User, error) {
+func (dao *GORMUserDao) SelectEmail(ctx context.Context, email string) (User, error) {
 	var user User
 	err := dao.db.WithContext(ctx).Where("email = ?", email).First(&user).Error
 	return user, err
 }
 
-func (dao *UserDAO) UpdateById(ctx *gin.Context, u User) error {
+func (dao *GORMUserDao) UpdateById(ctx *gin.Context, u User) error {
 	now := time.Now().UnixMilli()
 	result := dao.db.WithContext(ctx).Model(&u).Where("id = ?", u.Id).Updates(map[string]interface{}{
 		"Nickname":    u.Nickname,
@@ -70,13 +78,13 @@ func (dao *UserDAO) UpdateById(ctx *gin.Context, u User) error {
 	return result.Error
 }
 
-func (dao *UserDAO) SelectUserById(ctx *gin.Context, u domain.User) (User, error) {
+func (dao *GORMUserDao) SelectUserById(ctx *gin.Context, u domain.User) (User, error) {
 	var user User
 	err := dao.db.WithContext(ctx).Where("id = ?", u.Id).First(&user).Error
 	return user, err
 }
 
-func (dao *UserDAO) SelectPhone(ctx *gin.Context, phone string) (User, error) {
+func (dao *GORMUserDao) SelectPhone(ctx *gin.Context, phone string) (User, error) {
 	var user User
 	err := dao.db.WithContext(ctx).Where("phone = ?", phone).First(&user).Error
 	return user, err
