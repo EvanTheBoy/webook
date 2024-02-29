@@ -1,11 +1,9 @@
-//go:build wireinject
-
 package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/google/wire"
 	"webook/internal/repository"
+	"webook/internal/repository/cache"
 	"webook/internal/repository/dao"
 	"webook/internal/service"
 	"webook/internal/web"
@@ -13,12 +11,14 @@ import (
 )
 
 func InitWebServer() *gin.Engine {
-	wire.Build(
-		ioc.InitDB, initRedis,
-		dao.NewUserDao,
-		repository.NewUserRepository,
-		service.NewUserService,
-		web.NewUserHandler,
-	)
-	return new(gin.Engine)
+	cmdable := ioc.InitRedis()
+	v := ioc.InitMiddlewares(cmdable)
+	db := ioc.InitDB()
+	userDao := dao.NewUserDao(db)
+	userCache := cache.NewUserCache(cmdable)
+	userRepository := repository.NewUserRepository(userDao, userCache)
+	userService := service.NewUserService(userRepository)
+	userHandler := web.NewUserHandler(userService)
+	engine := ioc.InitGin(v, userHandler)
+	return engine
 }
