@@ -5,9 +5,15 @@ import (
 	"webook/internal/repository/cache"
 )
 
+var (
+	ErrVerifyTooManyTimes = cache.ErrVerifyTooManyTimes
+	ErrSystemAnomaly      = cache.ErrSystemAnomaly
+	ErrCodeNotCorrect     = cache.ErrCodeNotCorrect
+)
+
 type CodeRepository interface {
 	Store(ctx context.Context, biz, phone, code string) error
-	Verify(ctx context.Context, biz, phone, code string) (bool, error)
+	Verify(ctx context.Context, biz, phone, code string) error
 }
 
 type CodeRepositoryImpl struct {
@@ -24,6 +30,6 @@ func (cr *CodeRepositoryImpl) Store(ctx context.Context, biz, phone, code string
 	return cr.cache.Set(ctx, biz, code, phone)
 }
 
-func (cr *CodeRepositoryImpl) Verify(ctx context.Context, biz, phone, code string) (bool, error) {
+func (cr *CodeRepositoryImpl) Verify(ctx context.Context, biz, phone, code string) error {
 	return cr.cache.Verify(ctx, biz, code, phone)
 }

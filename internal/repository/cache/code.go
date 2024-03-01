@@ -12,6 +12,7 @@ var (
 	ErrSendCodeTooManyTimes = errors.New("验证码发送太频繁")
 	ErrVerifyTooManyTimes   = errors.New("验证次数太多")
 	ErrSystemAnomaly        = errors.New("系统错误")
+	ErrCodeNotCorrect       = errors.New("验证码错误")
 )
 
 //go:embed lua/set_code.lua
@@ -22,7 +23,7 @@ var luaVerifyCode string
 
 type CodeCache interface {
 	Set(ctx context.Context, biz, code, phone string) error
-	Verify(ctx context.Context, biz, code, phone string) (bool, error)
+	Verify(ctx context.Context, biz, code, phone string) error
 }
 
 type CodeCacheImpl struct {
@@ -50,18 +51,20 @@ func (c *CodeCacheImpl) Set(ctx context.Context, biz, code, phone string) error 
 	}
 }
 
-func (c *CodeCacheImpl) Verify(ctx context.Context, biz, code, phone string) (bool, error) {
+func (c *CodeCacheImpl) Verify(ctx context.Context, biz, code, phone string) error {
 	res, err := c.client.Eval(ctx, luaVerifyCode, []string{c.key(biz, phone)}, code).Int()
 	if err != nil {
-		return false, err
+		return err
 	}
 	switch res {
 	case 0:
-		return true, nil
+		return nil
 	case -1:
-		return false, ErrVerifyTooManyTimes
+		return ErrVerifyTooManyTimes
+	case -2:
+		return ErrCodeNotCorrect
 	default:
-		return false, ErrSystemAnomaly
+		return ErrSystemAnomaly
 	}
 }
 

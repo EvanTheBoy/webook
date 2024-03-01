@@ -94,18 +94,18 @@ func (u *UserHandler) VerifyLoginSmsCode(ctx *gin.Context) {
 		return
 	}
 
-	ok, err := u.codeSvc.Verify(ctx, biz, req.Code, req.Phone)
-	if !ok {
+	err := u.codeSvc.Verify(ctx, biz, req.Code, req.Phone)
+	if errors.Is(err, service.ErrCodeNotCorrect) {
 		ctx.JSON(http.StatusOK, Result{
 			Code: 4,
 			Msg:  "验证码错误",
 		})
 		return
 	}
-	if err != nil {
+	if errors.Is(err, service.ErrVerifyTooManyTimes) {
 		ctx.JSON(http.StatusOK, Result{
-			Code: 5,
-			Msg:  "系统错误",
+			Code: 6,
+			Msg:  "验证次数太频繁",
 		})
 		return
 	}

@@ -11,13 +11,16 @@ import (
 )
 
 var (
-	tplId    = "SMS_464325417"
-	signName = "hmdpLogin"
+	tplId                 = "SMS_464325417"
+	signName              = "hmdpLogin"
+	ErrVerifyTooManyTimes = repository.ErrVerifyTooManyTimes
+	ErrSystemAnomaly      = repository.ErrSystemAnomaly
+	ErrCodeNotCorrect     = repository.ErrCodeNotCorrect
 )
 
 type CodeService interface {
 	Send(ctx context.Context, biz, phone string) error
-	Verify(ctx context.Context, biz, code, phone string) (bool, error)
+	Verify(ctx context.Context, biz, code, phone string) error
 }
 
 type CodeServiceImpl struct {
@@ -47,7 +50,7 @@ func (svc *CodeServiceImpl) Send(ctx context.Context, biz, phone string) error {
 	return nil
 }
 
-func (svc *CodeServiceImpl) Verify(ctx context.Context, biz, code, phone string) (bool, error) {
+func (svc *CodeServiceImpl) Verify(ctx context.Context, biz, code, phone string) error {
 	return svc.repo.Verify(ctx, biz, code, phone)
 }
 
