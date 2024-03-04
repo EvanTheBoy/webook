@@ -40,6 +40,8 @@ func InitMiddlewares(redisClient redis.Cmdable) []gin.HandlerFunc {
 			IgnorePaths("/users/login_sms/code/verify").
 			IgnorePaths("/users/login").Build(),
 		// 引入redis, 基于IP地址进行限流
+		//limiter := ratelimit2.NewRedisSlidingWindow(redisClient, time.Second, 100)
 		ratelimit.NewBuilder(redisClient, time.Second, 100).Build(),
+		//ratelimit.NewBuilder().Build(),
 	}
 }
