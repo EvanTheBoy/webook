@@ -3,12 +3,12 @@ package ioc
 import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/redis/go-redis/v9"
 	"strings"
 	"time"
 	"webook/internal/web"
 	"webook/internal/web/middleware"
 	"webook/pkg/ginx/middleware/ratelimit"
+	ratelimit2 "webook/pkg/ratelimit"
 )
 
 func InitGin(middlewares []gin.HandlerFunc, handler *web.UserHandler) *gin.Engine {
@@ -18,7 +18,7 @@ func InitGin(middlewares []gin.HandlerFunc, handler *web.UserHandler) *gin.Engin
 	return server
 }
 
-func InitMiddlewares(redisClient redis.Cmdable) []gin.HandlerFunc {
+func InitMiddlewares(limiter ratelimit2.Limiter) []gin.HandlerFunc {
 	return []gin.HandlerFunc{
 		// 引入CORS的相关中间件解决跨域问题
 		cors.New(cors.Config{
@@ -41,7 +41,7 @@ func InitMiddlewares(redisClient redis.Cmdable) []gin.HandlerFunc {
 			IgnorePaths("/users/login").Build(),
 		// 引入redis, 基于IP地址进行限流
 		//limiter := ratelimit2.NewRedisSlidingWindow(redisClient, time.Second, 100)
-		ratelimit.NewBuilder(redisClient, time.Second, 100).Build(),
-		//ratelimit.NewBuilder().Build(),
+		//ratelimit.NewBuilder(redisClient, time.Second, 100).Build(),
+		ratelimit.NewBuilder(limiter).Build(),
 	}
 }
