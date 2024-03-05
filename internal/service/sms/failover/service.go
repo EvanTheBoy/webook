@@ -13,10 +13,9 @@ type FailoverSMSService struct {
 	idx      uint64
 }
 
-func NewFailoverSMSService(services []sms.Service, idx uint64) sms.Service {
+func NewFailoverSMSService(services []sms.Service) sms.Service {
 	return &FailoverSMSService{
 		services: services,
-		idx:      idx,
 	}
 }
 
