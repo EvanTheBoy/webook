@@ -157,7 +157,7 @@ sudo gpasswd -a evan docker
 newgrp docker
 ```
 
-然后进入提前创建好的项目根目录 webook，拉取 mysql 和 redis 的镜像。在大陆地区，此过程可能会非常慢，即便是使用了 proxychains 可能也无济于事。因此先修改其配置文件：
+然后进入提前创建好的项目根目录 webook，拉取 mysql 和 redis 的镜像。根据实际情况，我修改了它的配置文件，以便于后续下载：
 
 ```bash
 sudo vim /etc/docker/daemon.json
