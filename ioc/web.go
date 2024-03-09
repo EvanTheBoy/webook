@@ -7,6 +7,7 @@ import (
 	"time"
 	"webook/internal/web"
 	"webook/internal/web/middleware"
+	"webook/pkg/ginx/middleware/logger"
 	"webook/pkg/ginx/middleware/ratelimit"
 	ratelimit2 "webook/pkg/ratelimit"
 )
@@ -20,6 +21,8 @@ func InitGin(middlewares []gin.HandlerFunc, handler *web.UserHandler) *gin.Engin
 
 func InitMiddlewares(limiter ratelimit2.Limiter) []gin.HandlerFunc {
 	return []gin.HandlerFunc{
+		// 引入日志模块
+		logger.NewBuilder().AllowReq().AllowResp().Build(),
 		// 引入CORS的相关中间件解决跨域问题
 		cors.New(cors.Config{
 			AllowHeaders:     []string{"Content-Type", "Authorization"},
