@@ -15,6 +15,7 @@ import (
 
 func InitWebServer() *gin.Engine {
 	wire.Build(
+		ioc.InitLogger,
 		ioc.InitDB, ioc.InitRedis, ioc.InitLimiter,
 		dao.NewUserDao,
 		cache.NewUserCache,

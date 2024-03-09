@@ -7,6 +7,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"webook/internal/domain"
 	"webook/internal/repository"
+	log2 "webook/pkg/log"
 )
 
 var (
@@ -24,12 +25,14 @@ type UserService interface {
 }
 
 type UserServiceImpl struct {
-	repo repository.UserRepository
+	repo   repository.UserRepository
+	logger log2.Logger
 }
 
-func NewUserService(repo repository.UserRepository) UserService {
+func NewUserService(repo repository.UserRepository, l log2.Logger) UserService {
 	return &UserServiceImpl{
-		repo: repo,
+		repo:   repo,
+		logger: l,
 	}
 }
 
@@ -48,6 +51,7 @@ func (svc *UserServiceImpl) Login(ctx context.Context, u domain.User) (domain.Us
 	// 先查找用户
 	user, err := svc.repo.FindByEmail(ctx, u.Email)
 	if errors.Is(err, repository.ErrUserNotFound) {
+		svc.logger.Error("账号或密码错误")
 		// 笼统化, 不能告诉用户具体是账号有问题还是密码有问题
 		return domain.User{}, ErrInvalidUserOrPassword
 	} else if err != nil {
@@ -75,6 +79,7 @@ func (svc *UserServiceImpl) FindOrCreate(ctx *gin.Context, phone string) (domain
 	user, err := svc.repo.FindByPhone(ctx, phone)
 	// 若存在用户, 把用户和错误一并返回
 	if !errors.Is(err, ErrUserNotFound) {
+		svc.logger.Error("用户不存在")
 		return user, err
 	}
 	// 若不存在用户, 当场创建
