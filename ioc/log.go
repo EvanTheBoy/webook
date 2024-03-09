@@ -2,7 +2,7 @@ package ioc
 
 import (
 	"go.uber.org/zap"
-	log2 "webook/pkg/log"
+	log2 "webook/pkg/logs"
 )
 
 func InitLogger() log2.Logger {

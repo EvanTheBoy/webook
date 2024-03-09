@@ -7,7 +7,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"webook/internal/domain"
 	"webook/internal/repository"
-	log2 "webook/pkg/log"
+	log2 "webook/pkg/logs"
 )
 
 var (
