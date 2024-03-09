@@ -2,6 +2,7 @@ package logger
 
 import (
 	"github.com/gin-gonic/gin"
+	"time"
 )
 
 type Builder struct {
@@ -28,15 +29,7 @@ func (b *Builder) AllowResp() *Builder {
 
 func (b *Builder) Build() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		url := ctx.Request.URL.String()
-		if len(url) > b.length {
-			url = url[:b.length]
-		}
 
-		al := &AccessLog{
-			Method: ctx.Request.Method,
-			Url:    url,
-		}
 	}
 }
 
@@ -48,4 +41,5 @@ type AccessLog struct {
 	Url      string
 	ReqBody  string
 	RespBody string
+	Duration time.Duration
 }
