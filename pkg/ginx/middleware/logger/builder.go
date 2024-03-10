@@ -51,17 +51,39 @@ func (b *Builder) Build() gin.HandlerFunc {
 			}
 			al.ReqBody = string(body)
 		}
-		defer func() {
-			al.Duration = time.Since(start)
-			if b.allowRespBody && ctx.Request.Body != nil {
-				// 打日志
-				b.loggerFunc(ctx, al)
-
+		if b.allowRespBody {
+			ctx.Writer = responseWriter{
+				al:             al,
+				ResponseWriter: ctx.Writer,
 			}
+		}
+		defer func() {
+			al.Duration = time.Since(start).String()
+			b.loggerFunc(ctx, al)
 		}()
 		// 执行业务逻辑
 		ctx.Next()
 	}
+}
+
+type responseWriter struct {
+	gin.ResponseWriter
+	al *AccessLog
+}
+
+func (w responseWriter) WriteString(data string) (int, error) {
+	w.al.RespBody = data
+	return w.ResponseWriter.WriteString(data)
+}
+
+func (w responseWriter) Write(data []byte) (int, error) {
+	w.al.RespBody = string(data)
+	return w.ResponseWriter.Write(data)
+}
+
+func (w responseWriter) WriteHeader(statusCode int) {
+	w.al.Status = statusCode
+	w.ResponseWriter.WriteHeader(statusCode)
 }
 
 type AccessLog struct {
@@ -72,5 +94,6 @@ type AccessLog struct {
 	Url      string
 	ReqBody  string
 	RespBody string
-	Duration time.Duration
+	Duration string
+	Status   int
 }
