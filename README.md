@@ -26,7 +26,9 @@ sudo tar -zxvf go1.20.5.linux-amd64.tar.gz -C /usr/local/
 
 接下来输入：
 
+```bash
 sudo vim /etc/profile
+```
 
 配置环境变量。在文件的末尾加入：
 
