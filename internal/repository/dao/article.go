@@ -24,7 +24,7 @@ func (a *ArticleDaoImpl) Insert(ctx context.Context, article Article) (int64, er
 	t := time.Now().UnixMilli()
 	article.CreatedTime = t
 	article.UpdatedTime = t
-	err := a.db.Create(&article).Error
+	err := a.db.WithContext(ctx).Create(&article).Error
 	return article.Id, err
 }
 
