@@ -65,7 +65,7 @@ func (s *ArticleTestSuite) TestEdit() {
 			s.server.ServeHTTP(resp, req)
 			assert.Equal(t, tc.wantCode, resp.Code)
 			if resp.Code != 200 {
-
+				return
 			}
 			var webRes Result[int64]
 			err = json.NewDecoder(resp.Body).Decode(&webRes)
