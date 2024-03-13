@@ -7,19 +7,19 @@ import (
 )
 
 type ArticleService interface {
-	Edit(ctx context.Context, article domain.Article)
+	Create(ctx context.Context, article domain.Article) (int64, error)
 }
 
 type ArticleServiceImpl struct {
-	repo *repository.ArticleRepository
+	repo repository.ArticleRepository
 }
 
-func NewArticleService(r *repository.ArticleRepository) ArticleService {
+func NewArticleService(r repository.ArticleRepository) ArticleService {
 	return &ArticleServiceImpl{
 		repo: r,
 	}
 }
 
-func (a *ArticleServiceImpl) Edit(ctx context.Context, article domain.Article) {
-
+func (a *ArticleServiceImpl) Create(ctx context.Context, article domain.Article) (int64, error) {
+	return a.repo.Create(ctx, article)
 }

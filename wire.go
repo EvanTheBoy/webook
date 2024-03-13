@@ -18,6 +18,7 @@ func InitWebServer() *gin.Engine {
 		ioc.InitLogger,
 		ioc.InitDB, ioc.InitRedis, ioc.InitLimiter,
 		dao.NewUserDao,
+		dao.NewArticleDao,
 		cache.NewUserCache,
 		cache.NewCodeCache,
 		repository.NewCodeRepository,
@@ -28,6 +29,7 @@ func InitWebServer() *gin.Engine {
 		service.NewArticleService,
 		ioc.InitSMSService,
 		web.NewUserHandler,
+		web.NewArticleHandler,
 		ioc.InitGin,
 		ioc.InitMiddlewares,
 	)

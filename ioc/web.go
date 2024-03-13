@@ -14,10 +14,11 @@ import (
 	ratelimit2 "webook/pkg/ratelimit"
 )
 
-func InitGin(middlewares []gin.HandlerFunc, handler *web.UserHandler) *gin.Engine {
+func InitGin(middlewares []gin.HandlerFunc, uHdl *web.UserHandler, aHdl *web.ArticleHandler) *gin.Engine {
 	server := gin.Default()
 	server.Use(middlewares...)
-	handler.RegisterUserRoutes(server)
+	uHdl.RegisterUserRoutes(server)
+	aHdl.RegisterArticleRoutes(server)
 	return server
 }
 
