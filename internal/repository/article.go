@@ -8,6 +8,7 @@ import (
 
 type ArticleRepository interface {
 	Create(ctx context.Context, article domain.Article) (int64, error)
+	Update(ctx context.Context, article domain.Article) error
 }
 
 type ArticleRepositoryImpl struct {
@@ -20,6 +21,10 @@ func (a *ArticleRepositoryImpl) Create(ctx context.Context, article domain.Artic
 		Content:  article.Content,
 		AuthorId: article.Author.Id,
 	})
+}
+
+func (a *ArticleRepositoryImpl) Update(ctx context.Context, article domain.Article) error {
+
 }
 
 func NewArticleRepository(d dao.ArticleDao) ArticleRepository {
